@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  nickname  String   @db.VarChar(50)
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  votes Vote[]
+
+  @@index([createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc), id])
+  @@map("messages")
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  type      String   @db.VarChar(10) // "like" or "dislike"
+  sessionId String   @map("session_id") @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId String  @map("message_id")
+
+  @@unique([messageId, sessionId])
+  @@index([messageId])
+  @@map("votes")
+}
