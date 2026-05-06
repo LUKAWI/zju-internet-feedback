@@ -10,6 +10,7 @@ interface Message {
   content: string
   createdAt: string
   likeCount: number
+  userVote: 'like' | null
 }
 
 interface MessageCardProps {
@@ -35,6 +36,7 @@ export function MessageCard({ message }: MessageCardProps) {
           <VoteButtons
             messageId={message.id}
             initialLikeCount={message.likeCount}
+            initialUserVote={message.userVote}
           />
         </div>
       </div>

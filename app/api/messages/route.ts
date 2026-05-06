@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || ''
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
+    const sessionId = request.cookies.get('sessionId')?.value
 
     if (page < 1 || limit < 1 || limit > 100) {
       return NextResponse.json(
@@ -73,14 +74,31 @@ export async function GET(request: NextRequest) {
       total = count
     }
 
+    const messageIds = messages.map((m) => m.id)
+    const userVoteMap = new Map<string, string>()
+    if (sessionId && messageIds.length > 0) {
+      const userVotes = await prisma.vote.findMany({
+        where: {
+          messageId: { in: messageIds },
+          sessionId,
+        },
+        select: { messageId: true, type: true },
+      })
+      for (const v of userVotes) {
+        userVoteMap.set(v.messageId, v.type)
+      }
+    }
+
     const formattedMessages = messages.map((msg) => {
       const likeCount = (msg.votes as { type: string }[]).filter((v) => v.type === 'like').length
+      const userVote = userVoteMap.get(msg.id) === 'like' ? 'like' : null
       return {
         id: msg.id,
         nickname: msg.nickname,
         content: msg.content,
         createdAt: msg.createdAt.toISOString(),
         likeCount,
+        userVote,
       }
     })
 
@@ -157,6 +175,7 @@ export async function POST(request: NextRequest) {
           content: message.content,
           createdAt: message.createdAt.toISOString(),
           likeCount: 0,
+          userVote: null,
         },
       },
       { status: 201 }

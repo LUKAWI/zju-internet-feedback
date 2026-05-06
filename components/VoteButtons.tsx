@@ -6,14 +6,16 @@ import { Heart } from 'lucide-react'
 interface VoteButtonsProps {
   messageId: string
   initialLikeCount: number
+  initialUserVote: 'like' | null
 }
 
 export function VoteButtons({
   messageId,
   initialLikeCount,
+  initialUserVote,
 }: VoteButtonsProps) {
   const [likeCount, setLikeCount] = useState(initialLikeCount)
-  const [userVote, setUserVote] = useState<'like' | null>(null)
+  const [userVote, setUserVote] = useState<'like' | null>(initialUserVote)
   const [isLoading, setIsLoading] = useState(false)
   const [popTarget, setPopTarget] = useState<'like' | null>(null)
   const popTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
