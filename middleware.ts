@@ -4,16 +4,16 @@ const PUBLIC_ROUTES = ['/', '/api/health']
 const USE_RATE_LIMIT = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
 
 let ratelimit: any = null
+let ratelimitPromise: Promise<void> | null = null
 
-if (USE_RATE_LIMIT) {
+async function initRatelimit() {
+  if (!USE_RATE_LIMIT || ratelimit) return
   const { Ratelimit } = await import('@upstash/ratelimit')
   const { Redis } = await import('@upstash/redis')
-  
   const redis = new Redis({
     url: process.env.UPSTASH_REDIS_REST_URL!,
     token: process.env.UPSTASH_REDIS_REST_TOKEN!,
   })
-  
   ratelimit = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(10, '10 s'),
@@ -24,15 +24,20 @@ if (USE_RATE_LIMIT) {
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  if (PUBLIC_ROUTES.includes(pathname)) {
+  if (PUBLIC_ROUTES.includes(pathname) || !USE_RATE_LIMIT) {
     return NextResponse.next()
   }
 
   if (!ratelimit) {
-    return NextResponse.next()
+    if (!ratelimitPromise) {
+      ratelimitPromise = initRatelimit()
+    }
+    await ratelimitPromise
   }
 
-  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+  const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim())
+    || request.headers.get('x-real-ip')
+    || 'unknown'
   const { success, limit, remaining, reset } = await ratelimit.limit(ip)
 
   const response = success

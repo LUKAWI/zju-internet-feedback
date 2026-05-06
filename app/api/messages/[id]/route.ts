@@ -23,6 +23,14 @@ export async function GET(
       )
     }
 
+    const votes = message.votes as { type: string }[]
+    let likeCount = 0
+    let dislikeCount = 0
+    for (const v of votes) {
+      if (v.type === 'like') likeCount++
+      else if (v.type === 'dislike') dislikeCount++
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -30,10 +38,9 @@ export async function GET(
         nickname: message.nickname,
         content: message.content,
         createdAt: message.createdAt.toISOString(),
-        likeCount: message.votes.filter((v: { type: string }) => v.type === 'like').length,
-        dislikeCount: message.votes.filter((v: { type: string }) => v.type === 'dislike').length,
-        score: message.votes.filter((v: { type: string }) => v.type === 'like').length -
-               message.votes.filter((v: { type: string }) => v.type === 'dislike').length,
+        likeCount,
+        dislikeCount,
+        score: likeCount - dislikeCount,
       },
     })
   } catch (error) {

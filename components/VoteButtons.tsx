@@ -70,13 +70,14 @@ export function VoteButtons({
 
       if (!response.ok) throw new Error('Vote failed')
 
-      const data = await response.json()
+      const json = await response.json()
+      const resolved = json.data
 
-      if (data.action === 'removed') {
+      if (resolved.action === 'removed') {
         if (type === 'like') setLikeCount((prev) => prev - 1)
         else setDislikeCount((prev) => prev - 1)
         setUserVote(null)
-      } else if (data.action === 'changed') {
+      } else if (resolved.action === 'changed') {
         if (type === 'like') {
           setLikeCount((prev) => prev + 1)
           setDislikeCount((prev) => prev - 1)

@@ -95,9 +95,10 @@ export function MessageForm({ onSubmit }: MessageFormProps) {
       toast.success('留言成功', {
         description: '你的留言已发布',
       })
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '请稍后重试'
       toast.error('留言失败', {
-        description: '请稍后重试',
+        description: message,
       })
     } finally {
       setIsSubmitting(false)
