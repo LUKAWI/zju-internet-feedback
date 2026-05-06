@@ -108,17 +108,8 @@ export function MessageList({ sort, search }: MessageListProps) {
 
   if (isLoading) {
     return (
-      <div>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-start gap-3 py-8 border-b border-border last:border-b-0">
-            <div className="h-7 w-7 bg-muted shrink-0" />
-            <div className="flex-1 space-y-2.5 pt-0.5">
-              <div className="skeleton-line skeleton-line-sm" />
-              <div className="skeleton-line skeleton-line-xl" />
-              <div className="skeleton-line skeleton-line-md" />
-            </div>
-          </div>
-        ))}
+      <div className="flex justify-center py-16">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground/50" />
       </div>
     )
   }

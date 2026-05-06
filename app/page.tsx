@@ -51,7 +51,7 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4 text-foreground/70" />
             <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-              校园网反馈
+              浙江大学校园网络服务用户反馈平台
             </span>
           </div>
         </div>

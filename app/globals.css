@@ -366,8 +366,9 @@ body::before {
   border-radius: 0;
   border-bottom: 1px solid var(--border);
   background: transparent;
-  padding: 8px 0;
+  padding: 8px 0 2px 0;
   font-size: 15px;
+  line-height: 1.5;
   outline: none;
   transition: border-color 0.2s ease, border-width 0.2s ease;
 }
