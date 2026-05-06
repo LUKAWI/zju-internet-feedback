@@ -73,22 +73,12 @@ export function VoteButtons({
       const json = await response.json()
       const resolved = json.data
 
+      setLikeCount(resolved.likeCount)
+      setDislikeCount(resolved.dislikeCount)
+
       if (resolved.action === 'removed') {
-        if (type === 'like') setLikeCount((prev) => prev - 1)
-        else setDislikeCount((prev) => prev - 1)
         setUserVote(null)
-      } else if (resolved.action === 'changed') {
-        if (type === 'like') {
-          setLikeCount((prev) => prev + 1)
-          setDislikeCount((prev) => prev - 1)
-        } else {
-          setLikeCount((prev) => prev - 1)
-          setDislikeCount((prev) => prev + 1)
-        }
-        setUserVote(type)
       } else {
-        if (type === 'like') setLikeCount((prev) => prev + 1)
-        else setDislikeCount((prev) => prev + 1)
         setUserVote(type)
       }
     } catch (error) {

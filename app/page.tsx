@@ -11,7 +11,7 @@ import { Danmaku } from '@/components/Danmaku'
 import Intro from '@/components/Intro'
 import type { CreateMessageInput } from '@/lib/validations'
 
-const FOOTER_TEXT = '© 2026 浙江大学校园网络服务用户反馈平台'
+const FOOTER_TEXT = '© SQTP| 浙江大学校园网络服务用户反馈平台'
 
 export default function HomePage() {
   const [sort, setSort] = useState('latest')
