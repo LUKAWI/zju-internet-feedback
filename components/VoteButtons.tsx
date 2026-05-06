@@ -39,6 +39,27 @@ export function VoteButtons({
     const prevDislike = dislikeCount
     const prevVote = userVote
 
+    if (userVote === type) {
+      if (type === 'like') setLikeCount((prev) => prev - 1)
+      else setDislikeCount((prev) => prev - 1)
+      setUserVote(null)
+    } else if (userVote) {
+      if (type === 'like') {
+        setLikeCount((prev) => prev + 1)
+        setDislikeCount((prev) => prev - 1)
+      } else {
+        setLikeCount((prev) => prev - 1)
+        setDislikeCount((prev) => prev + 1)
+      }
+      setUserVote(type)
+    } else {
+      if (type === 'like') setLikeCount((prev) => prev + 1)
+      else setDislikeCount((prev) => prev + 1)
+      setUserVote(type)
+    }
+
+    triggerPop(type)
+
     setIsLoading(true)
     try {
       const response = await fetch(`/api/messages/${messageId}/vote`, {
@@ -60,8 +81,6 @@ export function VoteButtons({
       } else {
         setUserVote(type)
       }
-
-      triggerPop(type)
     } catch (error) {
       setLikeCount(prevLike)
       setDislikeCount(prevDislike)
