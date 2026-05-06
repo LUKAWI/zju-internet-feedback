@@ -11,8 +11,6 @@ interface Message {
   content: string
   createdAt: string
   likeCount: number
-  dislikeCount: number
-  score: number
 }
 
 interface MessageListProps {

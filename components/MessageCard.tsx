@@ -10,8 +10,6 @@ interface Message {
   content: string
   createdAt: string
   likeCount: number
-  dislikeCount: number
-  score: number
 }
 
 interface MessageCardProps {
@@ -37,11 +35,7 @@ export function MessageCard({ message }: MessageCardProps) {
           <VoteButtons
             messageId={message.id}
             initialLikeCount={message.likeCount}
-            initialDislikeCount={message.dislikeCount}
           />
-          {message.score > 10 && (
-            <span className="message-block-meta">热门</span>
-          )}
         </div>
       </div>
 

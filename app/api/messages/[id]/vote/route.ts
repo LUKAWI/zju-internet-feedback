@@ -3,22 +3,17 @@ import { prisma } from '@/lib/db'
 import { voteSchema } from '@/lib/validations'
 
 async function getVoteCounts(messageId: string) {
-  const votes = await prisma.vote.findMany({
-    where: { messageId },
-    select: { type: true },
+  const likeCount = await prisma.vote.count({
+    where: { messageId, type: 'like' },
   })
-
-  const likeCount = votes.filter((v: { type: string }) => v.type === 'like').length
-  const dislikeCount = votes.filter((v: { type: string }) => v.type === 'dislike').length
-
-  return { likeCount, dislikeCount, score: likeCount - dislikeCount }
+  return { likeCount }
 }
 
 function buildVoteResponse(
-  action: 'created' | 'changed' | 'removed',
+  action: 'created' | 'removed',
   voteType: string,
   sessionId: string,
-  counts: { likeCount: number; dislikeCount: number; score: number }
+  counts: { likeCount: number }
 ) {
   const response = NextResponse.json({
     success: true,
@@ -92,18 +87,16 @@ export async function POST(
         await prisma.vote.delete({
           where: { id: existingVote.id },
         })
-
         const counts = await getVoteCounts(messageId)
         return buildVoteResponse('removed', result.data.type, sessionId, counts)
+      } else {
+        await prisma.vote.update({
+          where: { id: existingVote.id },
+          data: { type: result.data.type },
+        })
+        const counts = await getVoteCounts(messageId)
+        return buildVoteResponse('created', result.data.type, sessionId, counts)
       }
-
-      await prisma.vote.update({
-        where: { id: existingVote.id },
-        data: { type: result.data.type },
-      })
-
-      const counts = await getVoteCounts(messageId)
-      return buildVoteResponse('changed', result.data.type, sessionId, counts)
     }
 
     await prisma.vote.create({

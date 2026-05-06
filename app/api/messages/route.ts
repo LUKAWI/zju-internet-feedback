@@ -32,26 +32,22 @@ export async function GET(request: NextRequest) {
     if (sort === 'popular') {
       const allMessages = await prisma.message.findMany({
         where,
+        orderBy: [{ createdAt: 'desc' }],
         include: {
           votes: {
             select: { type: true },
+            where: { type: 'like' },
           },
         },
       })
 
       const scored = allMessages.map((msg) => {
-        const votes = msg.votes
-        let likeCount = 0
-        let dislikeCount = 0
-        for (const v of votes) {
-          if (v.type === 'like') likeCount++
-          else if (v.type === 'dislike') dislikeCount++
-        }
-        return { msg, likeCount, dislikeCount, score: likeCount - dislikeCount }
+        const likeCount = msg.votes.length
+        return { msg, likeCount }
       })
 
       scored.sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score
+        if (b.likeCount !== a.likeCount) return b.likeCount - a.likeCount
         return b.msg.createdAt.getTime() - a.msg.createdAt.getTime()
       })
 
@@ -78,21 +74,13 @@ export async function GET(request: NextRequest) {
     }
 
     const formattedMessages = messages.map((msg) => {
-      const votes = msg.votes as { type: string }[]
-      let likeCount = 0
-      let dislikeCount = 0
-      for (const v of votes) {
-        if (v.type === 'like') likeCount++
-        else if (v.type === 'dislike') dislikeCount++
-      }
+      const likeCount = (msg.votes as { type: string }[]).filter((v) => v.type === 'like').length
       return {
         id: msg.id,
         nickname: msg.nickname,
         content: msg.content,
         createdAt: msg.createdAt.toISOString(),
         likeCount,
-        dislikeCount,
-        score: likeCount - dislikeCount,
       }
     })
 
@@ -169,8 +157,6 @@ export async function POST(request: NextRequest) {
           content: message.content,
           createdAt: message.createdAt.toISOString(),
           likeCount: 0,
-          dislikeCount: 0,
-          score: 0,
         },
       },
       { status: 201 }

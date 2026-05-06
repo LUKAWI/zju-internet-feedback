@@ -12,7 +12,7 @@ export const createMessageSchema = z.object({
 })
 
 export const voteSchema = z.object({
-  type: z.enum(["like", "dislike"]),
+  type: z.enum(["like"]),
 })
 
 export type CreateMessageInput = z.infer<typeof createMessageSchema>
